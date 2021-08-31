@@ -56,22 +56,22 @@ public class Lox
 
 	private static void Run(string source)
 	{
-		//Scanner scanner = new Scanner(source);
-		//List<Token> tokens = scanner.ScanTokens();
+		Scanner scanner = new Scanner(source);
+		List<Token> tokens = scanner.ScanTokens();
 
-		//int numTokens = tokens.Count;
-		//for (int i = 0; i < numTokens; ++i)
-		//{
-		//	Console.WriteLine(tokens[i]);
-		//}
+		int numTokens = tokens.Count;
+		for (int i = 0; i < numTokens; ++i)
+		{
+			Console.WriteLine(tokens[i]);
+		}
 	}
 
-	private static void Error(int line, string message)
+	public static void Error(int line, string message)
 	{
 		Report(line, string.Empty, message);
 	}
 
-	private static void Report(int line, string where, string message)
+	public static void Report(int line, string where, string message)
 	{
 		Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
 		_hadError = true;

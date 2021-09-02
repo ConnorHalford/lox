@@ -1,0 +1,26 @@
+
+Terminal -> New Terminal
+- opens a new terminal window in vs code
+
+dotnet run
+- compiles code under Debug configuration and runs artifact in the vs code terminal window
+
+dotnet run --configuration Release
+- compiles code under Release configuration and runs artifact in the vs code terminal window
+
+dotnet run -- -mode -help
+- compiles code under Debug configuration and runs artifact in the vs code terminal window, passing the arguments -mode -help
+
+dotnet run --configuration Release -- -mode -help
+- compiles code under Release configuration and runs artifact in the vs code terminal window, passing the arguments -mode -help
+
+dotnet publish
+- compiles code under Debug configuration and outputs artifacts to bin folder
+
+dotnet publish --configuration Release
+- compiles code under Release configuration and outputs artifacts to bin folder
+
+
+
+
+dotnet run -- "D:\Documents\Code Trip\Lox\sample.lox"

@@ -22,9 +22,6 @@ public class Lox
 		{
 			RunPrompt();
 		}
-
-		Console.Write($"{Environment.NewLine}Press any key to exit...");
-		Console.ReadKey(true);
 		return 0;
 	}
 
@@ -58,17 +55,33 @@ public class Lox
 	{
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.ScanTokens();
+		Parser parser = new Parser(tokens);
+		Expr expression = parser.Parse();
 
-		int numTokens = tokens.Count;
-		for (int i = 0; i < numTokens; ++i)
+		// Stop if there was a syntax error
+		if (_hadError)
 		{
-			Console.WriteLine(tokens[i]);
+			return;
 		}
+
+		Console.WriteLine(new ASTPrinter().Print(expression));
 	}
 
 	public static void Error(int line, string message)
 	{
 		Report(line, string.Empty, message);
+	}
+
+	public static void Error(Token token, string message)
+	{
+		if (token.Type == TokenType.EOF)
+		{
+			Report(token.Line, " at end", message);
+		}
+		else
+		{
+			Report(token.Line, $" at '{token.Lexeme}'", message);
+		}
 	}
 
 	public static void Report(int line, string where, string message)

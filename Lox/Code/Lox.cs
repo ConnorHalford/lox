@@ -4,15 +4,17 @@ using System.IO;
 
 public class Lox
 {
+	private static Interpreter _interpreter = new Interpreter();
 	private static bool _hadError = false;
+	private static bool _hadRuntimeError = false;
 
-	public static int Main(string[] args)
+	public static void Main(string[] args)
 	{
 		int numArgs = args == null ? 0 : args.Length;
 		if (numArgs > 1)
 		{
 			Console.WriteLine("Usage: lox [script]");
-			return -1;
+			Environment.Exit(64);
 		}
 		else if (numArgs == 1)
 		{
@@ -22,7 +24,6 @@ public class Lox
 		{
 			RunPrompt();
 		}
-		return 0;
 	}
 
 	private static void RunFile(string path)
@@ -31,7 +32,11 @@ public class Lox
 		Run(source);
 		if (_hadError)
 		{
-			Environment.Exit(-1);
+			Environment.Exit(65);
+		}
+		if (_hadRuntimeError)
+		{
+			Environment.Exit(70);
 		}
 	}
 
@@ -64,7 +69,7 @@ public class Lox
 			return;
 		}
 
-		Console.WriteLine(new ASTPrinter().Print(expression));
+		_interpreter.Interpret(expression);
 	}
 
 	public static void Error(int line, string message)
@@ -82,6 +87,12 @@ public class Lox
 		{
 			Report(token.Line, $" at '{token.Lexeme}'", message);
 		}
+	}
+
+	public static void RuntimeError(RuntimeError error)
+	{
+		Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+		_hadRuntimeError = true;
 	}
 
 	public static void Report(int line, string where, string message)

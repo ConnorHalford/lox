@@ -4,13 +4,13 @@ using System.IO;
 
 public class GenerateAST
 {
-	public static int Main(string[] args)
+	public static void Main(string[] args)
 	{
 		int numArgs = args == null ? 0 : args.Length;
 		if (numArgs != 1)
 		{
 			Console.WriteLine("Usage: generate_ast <output directory>");
-			return -1;
+			Environment.Exit(64);
 		}
 
 		string outputDir = args[0];
@@ -20,8 +20,6 @@ public class GenerateAST
 				"Literal	: object Value",
 				"Unary		: Token Operation, Expr Right"
 			});
-
-		return 0;
 	}
 
 	private static void DefineAST(string outputDir, string baseName, List<string> types)

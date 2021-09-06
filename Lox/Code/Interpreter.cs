@@ -1,13 +1,18 @@
+using System.Collections.Generic;
+
 using static TokenType;
 
-public class Interpreter : Expr.Visitor<object>
+public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
-	public void Interpret(Expr expression)
+	public void Interpret(List<Stmt> statements)
 	{
 		try
 		{
-			object value = Evaluate(expression);
-			System.Console.WriteLine(Stringify(value));
+			int numStatements = statements.Count;
+			for (int i = 0; i < numStatements; ++i)
+			{
+				Execute(statements[i]);
+			}
 		}
 		catch (RuntimeError error)
 		{
@@ -116,6 +121,24 @@ public class Interpreter : Expr.Visitor<object>
 	private object Evaluate(Expr expr)
 	{
 		return expr.Accept(this);
+	}
+
+	private void Execute(Stmt stmt)
+	{
+		stmt.Accept(this);
+	}
+
+	public object VisitExpressionStmt(Stmt.Expression stmt)
+	{
+		Evaluate(stmt.Expr);
+		return null;
+	}
+
+	public object VisitPrintStmt(Stmt.Print stmt)
+	{
+		object value = Evaluate(stmt.Expr);
+		System.Console.WriteLine(Stringify(value));
+		return null;
 	}
 
 	private bool IsTruthy(object value)

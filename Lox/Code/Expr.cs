@@ -5,10 +5,27 @@ public abstract class Expr
 {
 	public interface Visitor<T>
 	{
-		T VisitBinaryExpr(Binary expr);
 		T VisitGroupingExpr(Grouping expr);
-		T VisitLiteralExpr(Literal expr);
+		T VisitBinaryExpr(Binary expr);
 		T VisitUnaryExpr(Unary expr);
+		T VisitLiteralExpr(Literal expr);
+		T VisitVariableExpr(Variable expr);
+		T VisitAssignExpr(Assign expr);
+	}
+
+	public class Grouping : Expr
+	{
+		public Grouping(Expr expression)
+		{
+			this.Expression = expression;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitGroupingExpr(this);
+		}
+
+		public Expr Expression;
 	}
 
 	public class Binary : Expr
@@ -30,19 +47,21 @@ public abstract class Expr
 		public Expr Right;
 	}
 
-	public class Grouping : Expr
+	public class Unary : Expr
 	{
-		public Grouping(Expr expression)
+		public Unary(Token operation, Expr right)
 		{
-			this.Expression = expression;
+			this.Operation = operation;
+			this.Right = right;
 		}
 
 		public override T Accept<T>(Visitor<T> visitor)
 		{
-			return visitor.VisitGroupingExpr(this);
+			return visitor.VisitUnaryExpr(this);
 		}
 
-		public Expr Expression;
+		public Token Operation;
+		public Expr Right;
 	}
 
 	public class Literal : Expr
@@ -60,21 +79,36 @@ public abstract class Expr
 		public object Value;
 	}
 
-	public class Unary : Expr
+	public class Variable : Expr
 	{
-		public Unary(Token operation, Expr right)
+		public Variable(Token name)
 		{
-			this.Operation = operation;
-			this.Right = right;
+			this.Name = name;
 		}
 
 		public override T Accept<T>(Visitor<T> visitor)
 		{
-			return visitor.VisitUnaryExpr(this);
+			return visitor.VisitVariableExpr(this);
 		}
 
-		public Token Operation;
-		public Expr Right;
+		public Token Name;
+	}
+
+	public class Assign : Expr
+	{
+		public Assign(Token name, Expr value)
+		{
+			this.name = name;
+			this.value = value;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitAssignExpr(this);
+		}
+
+		public Token name;
+		public Expr value;
 	}
 
 	public abstract T Accept<T>(Visitor<T> visitor);

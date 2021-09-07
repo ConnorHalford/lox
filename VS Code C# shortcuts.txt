@@ -23,7 +23,7 @@ dotnet publish --configuration Release
 
 
 using lox to parse sample file:
-dotnet run -- "D:\Documents\Code Trip\Lox\sample.lox"
+dotnet run -- ../sample.lox
 
 using AST generator to output Expr.cs in correct location:
-dotnet run -- "../Lox/Code"
+dotnet run -- ../Lox/Code

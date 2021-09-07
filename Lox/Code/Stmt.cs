@@ -5,8 +5,25 @@ public abstract class Stmt
 {
 	public interface Visitor<T>
 	{
+		T VisitBlockStmt(Block stmt);
 		T VisitExpressionStmt(Expression stmt);
+		T VisitVarStmt(Var stmt);
 		T VisitPrintStmt(Print stmt);
+	}
+
+	public class Block : Stmt
+	{
+		public Block(List<Stmt> statements)
+		{
+			this.Statements = statements;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitBlockStmt(this);
+		}
+
+		public List<Stmt> Statements;
 	}
 
 	public class Expression : Stmt
@@ -22,6 +39,23 @@ public abstract class Stmt
 		}
 
 		public Expr Expr;
+	}
+
+	public class Var : Stmt
+	{
+		public Var(Token name, Expr initializer)
+		{
+			this.Name = name;
+			this.Initializer = initializer;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitVarStmt(this);
+		}
+
+		public Token Name;
+		public Expr Initializer;
 	}
 
 	public class Print : Stmt

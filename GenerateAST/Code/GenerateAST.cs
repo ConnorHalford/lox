@@ -15,14 +15,18 @@ public class GenerateAST
 
 		string outputDir = args[0];
 		DefineAST(outputDir, "Expr", new List<string>() {
-				"Binary		: Expr Left, Token Operation, Expr Right",
 				"Grouping	: Expr Expression",
+				"Binary		: Expr Left, Token Operation, Expr Right",
+				"Unary		: Token Operation, Expr Right",
 				"Literal	: object Value",
-				"Unary		: Token Operation, Expr Right"
+				"Variable	: Token Name",
+				"Assign		: Token name, Expr value"
 			});
 
 		DefineAST(outputDir, "Stmt", new List<string>() {
+				"Block		: List<Stmt> Statements",
 				"Expression	: Expr Expr",
+				"Var		: Token Name, Expr Initializer",
 				"Print		: Expr Expr"
 			});
 	}

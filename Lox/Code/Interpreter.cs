@@ -4,6 +4,8 @@ using static TokenType;
 
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
+	private Environment _environment = new Environment();
+
 	public void Interpret(List<Stmt> statements)
 	{
 		try
@@ -20,29 +22,9 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		}
 	}
 
-	public object VisitLiteralExpr(Expr.Literal expr)
-	{
-		return expr.Value;
-	}
-
 	public object VisitGroupingExpr(Expr.Grouping expr)
 	{
 		return Evaluate(expr.Expression);
-	}
-
-	public object VisitUnaryExpr(Expr.Unary expr)
-	{
-		object right = Evaluate(expr.Right);
-		switch (expr.Operation.Type)
-		{
-			case BANG:
-				return !IsTruthy(right);
-
-			case MINUS:
-				CheckNumberOperand(expr.Operation, right);
-				return -(double)right;
-		}
-		return null;	// Unreachable
 	}
 
 	public object VisitBinaryExpr(Expr.Binary expr)
@@ -100,6 +82,38 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return null;	// Unreachable
 	}
 
+	public object VisitUnaryExpr(Expr.Unary expr)
+	{
+		object right = Evaluate(expr.Right);
+		switch (expr.Operation.Type)
+		{
+			case BANG:
+				return !IsTruthy(right);
+
+			case MINUS:
+				CheckNumberOperand(expr.Operation, right);
+				return -(double)right;
+		}
+		return null;	// Unreachable
+	}
+
+	public object VisitVariableExpr(Expr.Variable expr)
+	{
+		return _environment.Get(expr.Name);
+	}
+
+	public object VisitLiteralExpr(Expr.Literal expr)
+	{
+		return expr.Value;
+	}
+
+	public object VisitAssignExpr(Expr.Assign expr)
+	{
+		object value = Evaluate(expr.value);
+		_environment.Assign(expr.name, value);
+		return value;
+	}
+
 	private void CheckNumberOperand(Token operation, object operand)
 	{
 		if (operand is double)
@@ -128,6 +142,24 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		stmt.Accept(this);
 	}
 
+	private void ExecuteBlock(List<Stmt> statements, Environment environment)
+	{
+		Environment previous = _environment;
+		try
+		{
+			_environment = environment;
+			int numStatements = statements.Count;
+			for (int i = 0; i < numStatements; ++i)
+			{
+				Execute(statements[i]);
+			}
+		}
+		finally
+		{
+			_environment = previous;
+		}
+	}
+
 	public object VisitExpressionStmt(Stmt.Expression stmt)
 	{
 		Evaluate(stmt.Expr);
@@ -138,6 +170,23 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 	{
 		object value = Evaluate(stmt.Expr);
 		System.Console.WriteLine(Stringify(value));
+		return null;
+	}
+
+	public object VisitBlockStmt(Stmt.Block stmt)
+	{
+		ExecuteBlock(stmt.Statements, new Environment(_environment));
+		return null;
+	}
+
+	public object VisitVarStmt(Stmt.Var stmt)
+	{
+		object value = null;
+		if (stmt.Initializer != null)
+		{
+			value = Evaluate(stmt.Initializer);
+		}
+		_environment.Define(stmt.Name.Lexeme, value);
 		return null;
 	}
 

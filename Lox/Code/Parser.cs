@@ -20,9 +20,40 @@ public class Parser
 		List<Stmt> statements = new List<Stmt>();
 		while (!IsAtEnd())
 		{
-			statements.Add(Statement());
+			statements.Add(Declaration());
 		}
 		return statements;
+	}
+
+	private Stmt Declaration()
+	{
+		try
+		{
+			if (Match(VAR))
+			{
+				return VarDeclaration();
+			}
+			return Statement();
+		}
+		catch (ParseError)
+		{
+			Synchronize();
+			return null;
+		}
+	}
+
+	private Stmt VarDeclaration()
+	{
+		Token name = Consume(IDENTIFIER, "Expect variable name");
+
+		Expr initializer = null;
+		if (Match(EQUAL))
+		{
+			initializer = Expression();
+		}
+
+		Consume(SEMICOLON, "Expect ';' after variable declaration");
+		return new Stmt.Var(name, initializer);
 	}
 
 	private Stmt Statement()
@@ -30,6 +61,10 @@ public class Parser
 		if (Match(PRINT))
 		{
 			return PrintStatement();
+		}
+		if (Match(LEFT_BRACE))
+		{
+			return new Stmt.Block(Block());
 		}
 		return ExpressionStatement();
 	}
@@ -41,6 +76,19 @@ public class Parser
 		return new Stmt.Print(value);
 	}
 
+	private List<Stmt> Block()
+	{
+		List<Stmt> statements = new List<Stmt>();
+
+		while (!Check(RIGHT_BRACE) && !IsAtEnd())
+		{
+			statements.Add(Declaration());
+		}
+
+		Consume(RIGHT_BRACE, "Expect '}' after block");
+		return statements;
+	}
+
 	private Stmt ExpressionStatement()
 	{
 		Expr expr = Expression();
@@ -50,7 +98,28 @@ public class Parser
 
 	private Expr Expression()
 	{
-		return Equality();
+		return Assignment();
+	}
+
+	private Expr Assignment()
+	{
+		Expr expr = Equality();
+
+		if (Match(EQUAL))
+		{
+			Token equals = Previous();
+			Expr value = Assignment();
+
+			if (expr is Expr.Variable variable)
+			{
+				Token name = variable.Name;
+				return new Expr.Assign(name, value);
+			}
+
+			Error(equals, "Invalid assignment target");
+		}
+
+		return expr;
 	}
 
 	private Expr Equality()
@@ -129,6 +198,10 @@ public class Parser
 		if (Match(NUMBER, STRING))
 		{
 			return new Expr.Literal(Previous().Literal);
+		}
+		if (Match(IDENTIFIER))
+		{
+			return new Expr.Variable(Previous());
 		}
 		if (Match(LEFT_PAREN))
 		{

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.IO;
 
 public class Lox
@@ -13,8 +12,8 @@ public class Lox
 		int numArgs = args == null ? 0 : args.Length;
 		if (numArgs > 1)
 		{
-			Console.WriteLine("Usage: lox [script]");
-			Environment.Exit(64);
+			System.Console.WriteLine("Usage: lox [script]");
+			System.Environment.Exit(64);
 		}
 		else if (numArgs == 1)
 		{
@@ -32,11 +31,11 @@ public class Lox
 		Run(source);
 		if (_hadError)
 		{
-			Environment.Exit(65);
+			System.Environment.Exit(65);
 		}
 		if (_hadRuntimeError)
 		{
-			Environment.Exit(70);
+			System.Environment.Exit(70);
 		}
 	}
 
@@ -45,8 +44,8 @@ public class Lox
 		string line = null;
 		while (true)
 		{
-			Console.Write("> ");
-			line = Console.ReadLine();
+			System.Console.Write("> ");
+			line = System.Console.ReadLine();
 			if (string.IsNullOrEmpty(line))
 			{
 				break;
@@ -91,13 +90,13 @@ public class Lox
 
 	public static void RuntimeError(RuntimeError error)
 	{
-		Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
+		System.Console.Error.WriteLine($"{error.Message}\n[line {error.Token.Line}]");
 		_hadRuntimeError = true;
 	}
 
 	public static void Report(int line, string where, string message)
 	{
-		Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
+		System.Console.Error.WriteLine($"[line {line}] Error {where}: {message}");
 		_hadError = true;
 	}
 }

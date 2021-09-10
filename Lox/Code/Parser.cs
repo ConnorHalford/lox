@@ -58,6 +58,18 @@ public class Parser
 
 	private Stmt Statement()
 	{
+		if (Match(IF))
+		{
+			return IfStatement();
+		}
+		if (Match(FOR))
+		{
+			return ForStatement();
+		}
+		if (Match(WHILE))
+		{
+			return WhileStatement();
+		}
 		if (Match(PRINT))
 		{
 			return PrintStatement();
@@ -67,6 +79,84 @@ public class Parser
 			return new Stmt.Block(Block());
 		}
 		return ExpressionStatement();
+	}
+
+	private Stmt IfStatement()
+	{
+		Consume(LEFT_PAREN, "Expect '(' after 'if'");
+		Expr condition = Expression();
+		Consume(RIGHT_PAREN, "Expect ')' after if condition");
+
+		Stmt thenBranch = Statement();
+		Stmt elseBranch = null;
+		if (Match(ELSE))
+		{
+			elseBranch = Statement();
+		}
+
+		return new Stmt.If(condition, thenBranch, elseBranch);
+	}
+
+	private Stmt ForStatement()
+	{
+		Consume(LEFT_PAREN, "Expect '(' after 'for'");
+
+		Stmt initializer = null;
+		if (Match(SEMICOLON))
+		{
+			initializer = null;
+		}
+		else if (Match(VAR))
+		{
+			initializer = VarDeclaration();
+		}
+		else
+		{
+			initializer = ExpressionStatement();
+		}
+
+		Expr condition = null;
+		if (!Check(SEMICOLON))
+		{
+			condition = Expression();
+		}
+		Consume(SEMICOLON, "Expect ';' after loop condition");
+
+		Expr increment = null;
+		if (!Check(RIGHT_PAREN))
+		{
+			increment = Expression();
+		}
+		Consume(RIGHT_PAREN, "Expect ')' after for clauses");
+
+		Stmt body = Statement();
+
+		if (increment != null)
+		{
+			body = new Stmt.Block(new List<Stmt>() { body, new Stmt.Expression(increment) });
+		}
+
+		if (condition == null)
+		{
+			condition = new Expr.Literal(true);
+		}
+		body = new Stmt.While(condition, body);
+
+		if (initializer != null)
+		{
+			body = new Stmt.Block(new List<Stmt>() { initializer, body });
+		}
+
+		return body;
+	}
+
+	private Stmt WhileStatement()
+	{
+		Consume(LEFT_PAREN, "Expect '(' after 'while'");
+		Expr condition = Expression();
+		Consume(RIGHT_PAREN, "Expect ')' after condition");
+		Stmt body = Statement();
+		return new Stmt.While(condition, body);
 	}
 
 	private Stmt PrintStatement()
@@ -103,7 +193,7 @@ public class Parser
 
 	private Expr Assignment()
 	{
-		Expr expr = Equality();
+		Expr expr = Or();
 
 		if (Match(EQUAL))
 		{
@@ -117,6 +207,34 @@ public class Parser
 			}
 
 			Error(equals, "Invalid assignment target");
+		}
+
+		return expr;
+	}
+
+	private Expr Or()
+	{
+		Expr expr = And();
+
+		while (Match(OR))
+		{
+			Token operation = Previous();
+			Expr right = And();
+			expr = new Expr.Logical(expr, operation, right);
+		}
+
+		return expr;
+	}
+
+	private Expr And()
+	{
+		Expr expr = Equality();
+
+		while (Match(AND))
+		{
+			Token operation = Previous();
+			Expr right = Equality();
+			expr = new Expr.Logical(expr, operation, right);
 		}
 
 		return expr;

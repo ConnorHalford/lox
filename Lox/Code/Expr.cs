@@ -8,6 +8,7 @@ public abstract class Expr
 		T VisitGroupingExpr(Grouping expr);
 		T VisitBinaryExpr(Binary expr);
 		T VisitUnaryExpr(Unary expr);
+		T VisitLogicalExpr(Logical expr);
 		T VisitLiteralExpr(Literal expr);
 		T VisitVariableExpr(Variable expr);
 		T VisitAssignExpr(Assign expr);
@@ -60,6 +61,25 @@ public abstract class Expr
 			return visitor.VisitUnaryExpr(this);
 		}
 
+		public Token Operation;
+		public Expr Right;
+	}
+
+	public class Logical : Expr
+	{
+		public Logical(Expr left, Token operation, Expr right)
+		{
+			this.Left = left;
+			this.Operation = operation;
+			this.Right = right;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitLogicalExpr(this);
+		}
+
+		public Expr Left;
 		public Token Operation;
 		public Expr Right;
 	}

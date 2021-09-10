@@ -114,6 +114,28 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return value;
 	}
 
+	public object VisitLogicalExpr(Expr.Logical expr)
+	{
+		object left = Evaluate(expr.Left);
+
+		if (expr.Operation.Type == TokenType.OR)
+		{
+			if (IsTruthy(left))
+			{
+				return left;
+			}
+		}
+		else
+		{
+			if (!IsTruthy(left))
+			{
+				return left;
+			}
+		}
+
+		return Evaluate(expr.Right);
+	}
+
 	private void CheckNumberOperand(Token operation, object operand)
 	{
 		if (operand is double)
@@ -163,6 +185,28 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 	public object VisitExpressionStmt(Stmt.Expression stmt)
 	{
 		Evaluate(stmt.Expr);
+		return null;
+	}
+
+	public object VisitIfStmt(Stmt.If stmt)
+	{
+		if (IsTruthy(Evaluate(stmt.Condition)))
+		{
+			Execute(stmt.ThenBranch);
+		}
+		else
+		{
+			Execute(stmt.ElseBranch);
+		}
+		return null;
+	}
+
+	public object VisitWhileStmt(Stmt.While stmt)
+	{
+		while (IsTruthy(Evaluate(stmt.Condition)))
+		{
+			Execute(stmt.Body);
+		}
 		return null;
 	}
 

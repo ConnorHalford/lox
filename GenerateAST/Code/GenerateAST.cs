@@ -18,6 +18,7 @@ public class GenerateAST
 				"Grouping	: Expr Expression",
 				"Binary		: Expr Left, Token Operation, Expr Right",
 				"Unary		: Token Operation, Expr Right",
+				"Logical	: Expr Left, Token Operation, Expr Right",
 				"Literal	: object Value",
 				"Variable	: Token Name",
 				"Assign		: Token name, Expr value"
@@ -26,8 +27,10 @@ public class GenerateAST
 		DefineAST(outputDir, "Stmt", new List<string>() {
 				"Block		: List<Stmt> Statements",
 				"Expression	: Expr Expr",
+				"If			: Expr Condition, Stmt ThenBranch, Stmt ElseBranch",
 				"Var		: Token Name, Expr Initializer",
-				"Print		: Expr Expr"
+				"Print		: Expr Expr",
+				"While		: Expr Condition, Stmt Body"
 			});
 	}
 

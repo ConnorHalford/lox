@@ -5,6 +5,7 @@ public abstract class Expr
 {
 	public interface Visitor<T>
 	{
+		T VisitCallExpr(Call expr);
 		T VisitGroupingExpr(Grouping expr);
 		T VisitBinaryExpr(Binary expr);
 		T VisitUnaryExpr(Unary expr);
@@ -12,6 +13,25 @@ public abstract class Expr
 		T VisitLiteralExpr(Literal expr);
 		T VisitVariableExpr(Variable expr);
 		T VisitAssignExpr(Assign expr);
+	}
+
+	public class Call : Expr
+	{
+		public Call(Expr callee, Token parenthesis, List<Expr> arguments)
+		{
+			this.Callee = callee;
+			this.Parenthesis = parenthesis;
+			this.Arguments = arguments;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitCallExpr(this);
+		}
+
+		public Expr Callee;
+		public Token Parenthesis;
+		public List<Expr> Arguments;
 	}
 
 	public class Grouping : Expr

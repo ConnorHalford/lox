@@ -7,9 +7,11 @@ public abstract class Stmt
 	{
 		T VisitBlockStmt(Block stmt);
 		T VisitExpressionStmt(Expression stmt);
+		T VisitFunctionStmt(Function stmt);
 		T VisitIfStmt(If stmt);
 		T VisitVarStmt(Var stmt);
 		T VisitPrintStmt(Print stmt);
+		T VisitReturnStmt(Return stmt);
 		T VisitWhileStmt(While stmt);
 	}
 
@@ -41,6 +43,25 @@ public abstract class Stmt
 		}
 
 		public Expr Expr;
+	}
+
+	public class Function : Stmt
+	{
+		public Function(Token name, List<Token> parameters, List<Stmt> body)
+		{
+			this.Name = name;
+			this.Parameters = parameters;
+			this.Body = body;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitFunctionStmt(this);
+		}
+
+		public Token Name;
+		public List<Token> Parameters;
+		public List<Stmt> Body;
 	}
 
 	public class If : Stmt
@@ -92,6 +113,23 @@ public abstract class Stmt
 		}
 
 		public Expr Expr;
+	}
+
+	public class Return : Stmt
+	{
+		public Return(Token keyword, Expr value)
+		{
+			this.Keyword = keyword;
+			this.Value = value;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitReturnStmt(this);
+		}
+
+		public Token Keyword;
+		public Expr Value;
 	}
 
 	public class While : Stmt

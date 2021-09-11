@@ -4,7 +4,14 @@ using static TokenType;
 
 public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
-	private Environment _environment = new Environment();
+	private Environment _globals = new Environment();
+	private Environment _environment = null;
+
+	public Interpreter()
+	{
+		_environment = _globals;
+		_globals.Define("clock", new Clock());
+	}
 
 	public void Interpret(List<Stmt> statements)
 	{
@@ -20,6 +27,30 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		{
 			Lox.RuntimeError(error);
 		}
+	}
+
+	public object VisitCallExpr(Expr.Call expr)
+	{
+		object callee = Evaluate(expr.Callee);
+
+		int numArguments = expr.Arguments.Count;
+		List<object> arguments = new List<object>(numArguments);
+		for (int i = 0; i < numArguments; ++i)
+		{
+			arguments.Add(Evaluate(expr.Arguments[i]));
+		}
+
+		LoxCallable function = (LoxCallable)callee;
+		if (function == null)
+		{
+			throw new RuntimeError(expr.Parenthesis, "Can only call functions and classes");
+		}
+		if (arguments.Count != function.Arity())
+		{
+			throw new RuntimeError(expr.Parenthesis, $"Expected {function.Arity()} arguments but got {arguments.Count}");
+		}
+
+		return function.Call(this, arguments);
 	}
 
 	public object VisitGroupingExpr(Expr.Grouping expr)
@@ -159,12 +190,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return expr.Accept(this);
 	}
 
-	private void Execute(Stmt stmt)
+	public void Execute(Stmt stmt)
 	{
 		stmt.Accept(this);
 	}
 
-	private void ExecuteBlock(List<Stmt> statements, Environment environment)
+	public void ExecuteBlock(List<Stmt> statements, Environment environment)
 	{
 		Environment previous = _environment;
 		try
@@ -188,13 +219,30 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return null;
 	}
 
+	public object VisitFunctionStmt(Stmt.Function stmt)
+	{
+		LoxFunction function = new LoxFunction(stmt, _environment);
+		_environment.Define(stmt.Name.Lexeme, function);
+		return null;
+	}
+
+	public object VisitReturnStmt(Stmt.Return stmt)
+	{
+		object value = null;
+		if (stmt.Value != null)
+		{
+			value = Evaluate(stmt.Value);
+		}
+		throw new Return(value);
+	}
+
 	public object VisitIfStmt(Stmt.If stmt)
 	{
 		if (IsTruthy(Evaluate(stmt.Condition)))
 		{
 			Execute(stmt.ThenBranch);
 		}
-		else
+		else if (stmt.ElseBranch != null)
 		{
 			Execute(stmt.ElseBranch);
 		}

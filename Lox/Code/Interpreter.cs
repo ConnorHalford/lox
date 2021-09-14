@@ -6,6 +6,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 {
 	private Environment _globals = new Environment();
 	private Environment _environment = null;
+	private Dictionary<Expr, int> _locals = new Dictionary<Expr, int>();
 
 	public Interpreter()
 	{
@@ -130,7 +131,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 
 	public object VisitVariableExpr(Expr.Variable expr)
 	{
-		return _environment.Get(expr.Name);
+		return LookUpVariable(expr.Name, expr);
 	}
 
 	public object VisitLiteralExpr(Expr.Literal expr)
@@ -140,8 +141,17 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 
 	public object VisitAssignExpr(Expr.Assign expr)
 	{
-		object value = Evaluate(expr.value);
-		_environment.Assign(expr.name, value);
+		object value = Evaluate(expr.Value);
+
+		if (_locals.TryGetValue(expr, out int distance))
+		{
+			_environment.AssignAt(distance, expr.Name, value);
+		}
+		else
+		{
+			_globals.Assign(expr.Name, value);
+		}
+
 		return value;
 	}
 
@@ -165,6 +175,15 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		}
 
 		return Evaluate(expr.Right);
+	}
+
+	private object LookUpVariable(Token name, Expr expr)
+	{
+		if (_locals.TryGetValue(expr, out int distance))
+		{
+			return _environment.GetAt(distance, name.Lexeme);
+		}
+		return _globals.Get(name);
 	}
 
 	private void CheckNumberOperand(Token operation, object operand)
@@ -211,6 +230,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		{
 			_environment = previous;
 		}
+	}
+
+	public void Resolve(Expr expr, int depth)
+	{
+		_locals.Add(expr, depth);
 	}
 
 	public object VisitExpressionStmt(Stmt.Expression stmt)

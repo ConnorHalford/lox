@@ -138,8 +138,8 @@ public abstract class Expr
 	{
 		public Assign(Token name, Expr value)
 		{
-			this.name = name;
-			this.value = value;
+			this.Name = name;
+			this.Value = value;
 		}
 
 		public override T Accept<T>(Visitor<T> visitor)
@@ -147,8 +147,8 @@ public abstract class Expr
 			return visitor.VisitAssignExpr(this);
 		}
 
-		public Token name;
-		public Expr value;
+		public Token Name;
+		public Expr Value;
 	}
 
 	public abstract T Accept<T>(Visitor<T> visitor);

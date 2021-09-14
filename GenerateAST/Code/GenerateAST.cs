@@ -22,7 +22,7 @@ public class GenerateAST
 				"Logical	: Expr Left, Token Operation, Expr Right",
 				"Literal	: object Value",
 				"Variable	: Token Name",
-				"Assign		: Token name, Expr value"
+				"Assign		: Token Name, Expr Value"
 			});
 
 		DefineAST(outputDir, "Stmt", new List<string>() {

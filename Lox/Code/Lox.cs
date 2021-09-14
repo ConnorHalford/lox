@@ -59,13 +59,20 @@ public class Lox
 	{
 		Scanner scanner = new Scanner(source);
 		List<Token> tokens = scanner.ScanTokens();
+
 		Parser parser = new Parser(tokens);
 		List<Stmt> statements = parser.Parse();
 
-		// Stop if there was a syntax error
 		if (_hadError)
 		{
-			return;
+			return;	// Stop if there was a syntax error
+		}
+
+		Resolver resolver = new Resolver(_interpreter);
+		resolver.Resolve(statements);
+		if (_hadError)
+		{
+			return;	// Stop if there was a resolution error
 		}
 
 		_interpreter.Interpret(statements);

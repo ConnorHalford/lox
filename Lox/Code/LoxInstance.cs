@@ -19,7 +19,7 @@ public class LoxInstance
 		LoxFunction method = _loxClass.FindMethod(name.Lexeme);
 		if (method != null)
 		{
-			return method;
+			return method.Bind(this);
 		}
 		throw new RuntimeError(name, $"Undefined property '{name.Lexeme}'");
 	}

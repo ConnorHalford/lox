@@ -199,6 +199,11 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return value;
 	}
 
+	public object VisitThisExpr(Expr.This expr)
+	{
+		return LookUpVariable(expr.Keyword, expr);
+	}
+
 	private object LookUpVariable(Token name, Expr expr)
 	{
 		if (_locals.TryGetValue(expr, out int distance))
@@ -267,7 +272,7 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 
 	public object VisitFunctionStmt(Stmt.Function stmt)
 	{
-		LoxFunction function = new LoxFunction(stmt, _environment);
+		LoxFunction function = new LoxFunction(stmt, _environment, false);
 		_environment.Define(stmt.Name.Lexeme, function);
 		return null;
 	}
@@ -325,11 +330,12 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		Dictionary<string, LoxFunction> methods = new Dictionary<string, LoxFunction>(numMethods);
 		for (int i = 0; i < numMethods; ++i)
 		{
-			LoxFunction function = new LoxFunction(stmt.Methods[i], _environment);
+			bool isInitializer = stmt.Methods[i].Name.Lexeme.Equals("Init", System.StringComparison.Ordinal);
+			LoxFunction function = new LoxFunction(stmt.Methods[i], _environment, isInitializer);
 			methods.Add(stmt.Methods[i].Name.Lexeme, function);
 		}
 
-		LoxClass loxClass= new LoxClass(stmt.Name.Lexeme, methods);
+		LoxClass loxClass = new LoxClass(stmt.Name.Lexeme, methods);
 		_environment.Assign(stmt.Name, loxClass);
 
 		return null;

@@ -1,9 +1,12 @@
-class Bacon
+class Cake
 {
-	Eat()
+	Taste()
 	{
-		print "Crunch";
+		var adjective = "delicious";
+		print "The " + this.flavor + " cake is " + adjective + "!";
 	}
 }
 
-Bacon().Eat();
+var cake = Cake();
+cake.flavor = "German chocolate";
+cake.Taste();

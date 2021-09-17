@@ -22,6 +22,7 @@ public class GenerateAST
 				"Unary		: Token Operation, Expr Right",
 				"Logical	: Expr Left, Token Operation, Expr Right",
 				"Set		: Expr Instance, Token Name, Expr Value",
+				"This		: Token Keyword",
 				"Literal	: object Value",
 				"Variable	: Token Name",
 				"Assign		: Token Name, Expr Value"

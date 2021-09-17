@@ -6,12 +6,20 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 	{
 		None,
 		Function,
-		Method
+		Method,
+		Initializer
+	}
+
+	private enum ClassType
+	{
+		None,
+		Class
 	}
 
 	private Interpreter _interpreter = null;
 	private List<Dictionary<string, bool>> _scopes = new List<Dictionary<string, bool>>();
 	private FunctionType _currentFunction = FunctionType.None;
+	private ClassType _currentClass = ClassType.None;
 
 	public Resolver(Interpreter interpreter)
 	{
@@ -103,7 +111,7 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 		{
 			return;
 		}
-		_scopes[numScopes][name.Lexeme] = true;
+		_scopes[numScopes - 1][name.Lexeme] = true;
 	}
 
 	public object VisitBlockStmt(Stmt.Block stmt)
@@ -116,16 +124,29 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 
 	public object VisitClassStmt(Stmt.Class stmt)
 	{
+		ClassType enclosingClass = _currentClass;
+		_currentClass = ClassType.Class;
+
 		Declare(stmt.Name);
 		Define(stmt.Name);
+
+		BeginScope();
+		_scopes[_scopes.Count - 1].Add("this", true);
 
 		int numMethods = stmt.Methods.Count;
 		for (int i = 0; i < numMethods; ++i)
 		{
 			FunctionType declaration = FunctionType.Method;
+			if (stmt.Methods[i].Name.Lexeme.Equals("Init", System.StringComparison.Ordinal))
+			{
+				declaration = FunctionType.Initializer;
+			}
 			ResolveFunction(stmt.Methods[i], declaration);
 		}
 
+		EndScope();
+
+		_currentClass = enclosingClass;
 		return null;
 	}
 
@@ -179,6 +200,10 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 		}
 		if (stmt.Value != null)
 		{
+			if (_currentFunction == FunctionType.Initializer)
+			{
+				Lox.Error(stmt.Keyword, "Can't return a value from an initializer");
+			}
 			Resolve(stmt.Value);
 		}
 		return null;
@@ -257,6 +282,17 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 	{
 		Resolve(expr.Value);
 		Resolve(expr.Instance);
+		return null;
+	}
+
+	public object VisitThisExpr(Expr.This expr)
+	{
+		if (_currentClass == ClassType.None)
+		{
+			Lox.Error(expr.Keyword, "Can't use 'this' outside of a class");
+			return null;
+		}
+		ResolveLocal(expr, expr.Keyword);
 		return null;
 	}
 

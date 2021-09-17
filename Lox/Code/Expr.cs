@@ -6,10 +6,12 @@ public abstract class Expr
 	public interface Visitor<T>
 	{
 		T VisitCallExpr(Call expr);
+		T VisitGetExpr(Get expr);
 		T VisitGroupingExpr(Grouping expr);
 		T VisitBinaryExpr(Binary expr);
 		T VisitUnaryExpr(Unary expr);
 		T VisitLogicalExpr(Logical expr);
+		T VisitSetExpr(Set expr);
 		T VisitLiteralExpr(Literal expr);
 		T VisitVariableExpr(Variable expr);
 		T VisitAssignExpr(Assign expr);
@@ -32,6 +34,23 @@ public abstract class Expr
 		public Expr Callee;
 		public Token Parenthesis;
 		public List<Expr> Arguments;
+	}
+
+	public class Get : Expr
+	{
+		public Get(Expr instance, Token name)
+		{
+			this.Instance = instance;
+			this.Name = name;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitGetExpr(this);
+		}
+
+		public Expr Instance;
+		public Token Name;
 	}
 
 	public class Grouping : Expr
@@ -102,6 +121,25 @@ public abstract class Expr
 		public Expr Left;
 		public Token Operation;
 		public Expr Right;
+	}
+
+	public class Set : Expr
+	{
+		public Set(Expr instance, Token name, Expr value)
+		{
+			this.Instance = instance;
+			this.Name = name;
+			this.Value = value;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitSetExpr(this);
+		}
+
+		public Expr Instance;
+		public Token Name;
+		public Expr Value;
 	}
 
 	public class Literal : Expr

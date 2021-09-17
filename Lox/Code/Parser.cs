@@ -29,6 +29,10 @@ public class Parser
 	{
 		try
 		{
+			if (Match(CLASS))
+			{
+				return ClassDeclaration();
+			}
 			if (Match(FUN))
 			{
 				return Function("function");
@@ -44,6 +48,21 @@ public class Parser
 			Synchronize();
 			return null;
 		}
+	}
+
+	private Stmt.Class ClassDeclaration()
+	{
+		Token name = Consume(IDENTIFIER, "Expect class name");
+		Consume(LEFT_BRACE, "Expect '{' before class body");
+
+		List<Stmt.Function> methods = new List<Stmt.Function>();
+		while (!Check(RIGHT_BRACE) && !IsAtEnd())
+		{
+			methods.Add(Function("method"));
+		}
+
+		Consume(RIGHT_BRACE, "Expect '}' after class body");
+		return new Stmt.Class(name, methods);
 	}
 
 	private Stmt.Function Function(string kind)
@@ -249,6 +268,10 @@ public class Parser
 				Token name = variable.Name;
 				return new Expr.Assign(name, value);
 			}
+			else if (expr is Expr.Get getter)
+			{
+				return new Expr.Set(getter.Instance, getter.Name, value);
+			}
 
 			Error(equals, "Invalid assignment target");
 		}
@@ -352,6 +375,11 @@ public class Parser
 			if (Match(LEFT_PAREN))
 			{
 				expr = FinishCall(expr);
+			}
+			else if (Match(DOT))
+			{
+				Token name = Consume(IDENTIFIER, "Expect property name after '.'");
+				expr = new Expr.Get(expr, name);
 			}
 			else
 			{

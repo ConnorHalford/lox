@@ -1,31 +1,9 @@
-fun Fib(n)
+class Bacon
 {
-	if (n <= 1)
+	Eat()
 	{
-		return n;
+		print "Crunch";
 	}
-	return Fib(n - 2) + Fib(n - 1);
 }
 
-print "Recursive function calls:";
-for (var i = 0; i < 20; i = i + 1)
-{
-	print Fib(i);
-}
-
-fun MakeCounter()
-{
-	var i = 0;
-	fun Count()
-	{
-		i = i + 1;
-		print i;
-	}
-	return Count;
-}
-
-print "Closures:";
-var counter = MakeCounter();
-counter();
-counter();
-counter();
+Bacon().Eat();

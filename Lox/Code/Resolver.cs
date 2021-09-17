@@ -5,7 +5,8 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 	private enum FunctionType
 	{
 		None,
-		Function
+		Function,
+		Method
 	}
 
 	private Interpreter _interpreter = null;
@@ -113,6 +114,21 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 		return null;
 	}
 
+	public object VisitClassStmt(Stmt.Class stmt)
+	{
+		Declare(stmt.Name);
+		Define(stmt.Name);
+
+		int numMethods = stmt.Methods.Count;
+		for (int i = 0; i < numMethods; ++i)
+		{
+			FunctionType declaration = FunctionType.Method;
+			ResolveFunction(stmt.Methods[i], declaration);
+		}
+
+		return null;
+	}
+
 	public object VisitFunctionStmt(Stmt.Function stmt)
 	{
 		Declare(stmt.Name);
@@ -213,6 +229,12 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 		return null;
 	}
 
+	public object VisitGetExpr(Expr.Get expr)
+	{
+		Resolve(expr.Instance);
+		return null;
+	}
+
 	public object VisitGroupingExpr(Expr.Grouping expr)
 	{
 		Resolve(expr.Expression);
@@ -228,6 +250,13 @@ public class Resolver : Expr.Visitor<object>, Stmt.Visitor<object>
 	{
 		Resolve(expr.Left);
 		Resolve(expr.Right);
+		return null;
+	}
+
+	public object VisitSetExpr(Expr.Set expr)
+	{
+		Resolve(expr.Value);
+		Resolve(expr.Instance);
 		return null;
 	}
 

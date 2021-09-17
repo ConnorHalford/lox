@@ -6,6 +6,7 @@ public abstract class Stmt
 	public interface Visitor<T>
 	{
 		T VisitBlockStmt(Block stmt);
+		T VisitClassStmt(Class stmt);
 		T VisitExpressionStmt(Expression stmt);
 		T VisitFunctionStmt(Function stmt);
 		T VisitIfStmt(If stmt);
@@ -28,6 +29,23 @@ public abstract class Stmt
 		}
 
 		public List<Stmt> Statements;
+	}
+
+	public class Class : Stmt
+	{
+		public Class(Token name, List<Stmt.Function> methods)
+		{
+			this.Name = name;
+			this.Methods = methods;
+		}
+
+		public override T Accept<T>(Visitor<T> visitor)
+		{
+			return visitor.VisitClassStmt(this);
+		}
+
+		public Token Name;
+		public List<Stmt.Function> Methods;
 	}
 
 	public class Expression : Stmt

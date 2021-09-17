@@ -54,6 +54,16 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return function.Call(this, arguments);
 	}
 
+	public object VisitGetExpr(Expr.Get expr)
+	{
+		object instance = Evaluate(expr.Instance);
+		if (instance is LoxInstance loxInstance)
+		{
+			return loxInstance.Get(expr.Name);
+		}
+		throw new RuntimeError(expr.Name, "Only instances have properties");
+	}
+
 	public object VisitGroupingExpr(Expr.Grouping expr)
 	{
 		return Evaluate(expr.Expression);
@@ -177,6 +187,18 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 		return Evaluate(expr.Right);
 	}
 
+	public object VisitSetExpr(Expr.Set expr)
+	{
+		object instance = Evaluate(expr.Instance);
+		if (!(instance is LoxInstance loxInstance))
+		{
+			throw new RuntimeError(expr.Name, "Only instances have fields");
+		}
+		object value = Evaluate(expr.Value);
+		loxInstance.Set(expr.Name, value);
+		return value;
+	}
+
 	private object LookUpVariable(Token name, Expr expr)
 	{
 		if (_locals.TryGetValue(expr, out int distance))
@@ -292,6 +314,24 @@ public class Interpreter : Expr.Visitor<object>, Stmt.Visitor<object>
 	public object VisitBlockStmt(Stmt.Block stmt)
 	{
 		ExecuteBlock(stmt.Statements, new Environment(_environment));
+		return null;
+	}
+
+	public object VisitClassStmt(Stmt.Class stmt)
+	{
+		_environment.Define(stmt.Name.Lexeme, null);
+
+		int numMethods = stmt.Methods.Count;
+		Dictionary<string, LoxFunction> methods = new Dictionary<string, LoxFunction>(numMethods);
+		for (int i = 0; i < numMethods; ++i)
+		{
+			LoxFunction function = new LoxFunction(stmt.Methods[i], _environment);
+			methods.Add(stmt.Methods[i].Name.Lexeme, function);
+		}
+
+		LoxClass loxClass= new LoxClass(stmt.Name.Lexeme, methods);
+		_environment.Assign(stmt.Name, loxClass);
+
 		return null;
 	}
 

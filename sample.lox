@@ -1,12 +1,18 @@
-class Cake
+class Doughnut
 {
-	Taste()
+	Cook()
 	{
-		var adjective = "delicious";
-		print "The " + this.flavor + " cake is " + adjective + "!";
+		print "Fry until golden brown";
 	}
 }
 
-var cake = Cake();
-cake.flavor = "German chocolate";
-cake.Taste();
+class BostonCream < Doughnut
+{
+	Cook()
+	{
+		super.Cook();
+		print "Pipe full of custard and coat with chocolate";
+	}
+}
+
+BostonCream().Cook();

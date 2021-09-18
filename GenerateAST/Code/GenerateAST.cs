@@ -22,6 +22,7 @@ public class GenerateAST
 				"Unary		: Token Operation, Expr Right",
 				"Logical	: Expr Left, Token Operation, Expr Right",
 				"Set		: Expr Instance, Token Name, Expr Value",
+				"Super		: Token Keyword, Token Method",
 				"This		: Token Keyword",
 				"Literal	: object Value",
 				"Variable	: Token Name",
@@ -30,7 +31,7 @@ public class GenerateAST
 
 		DefineAST(outputDir, "Stmt", new List<string>() {
 				"Block		: List<Stmt> Statements",
-				"Class		: Token Name, List<Stmt.Function> Methods",
+				"Class		: Token Name, Expr.Variable Superclass, List<Stmt.Function> Methods",
 				"Expression	: Expr Expr",
 				"Function	: Token Name, List<Token> Parameters, List<Stmt> Body",
 				"If			: Expr Condition, Stmt ThenBranch, Stmt ElseBranch",

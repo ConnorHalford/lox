@@ -22,6 +22,7 @@ public class Lox
 		else
 		{
 			RunPrompt();
+			//RunFile("../Sample.lox");
 		}
 	}
 

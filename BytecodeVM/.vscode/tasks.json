@@ -6,9 +6,9 @@
             "command": "C:\\msys64\\mingw64\\bin\\gcc.exe",
             "args": [
                 "-g",
-                "${workspaceFolder}\\main.c",
+                "${workspaceFolder}\\*.c",
                 "-o",
-                "${workspaceFolder}\\lox.exe"
+                "${workspaceFolder}\\bin\\lox.exe"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

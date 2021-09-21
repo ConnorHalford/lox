@@ -1,0 +1,9 @@
+
+Ctrl+Shift+B
+- build new executable at ./bin/lox.exe
+
+Terminal -> New Terminal
+- opens a new terminal window in vs code
+
+./bin/lox.exe
+- runs the built executable

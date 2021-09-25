@@ -16,7 +16,7 @@ typedef enum
 	TOKEN_SLASH,
 	TOKEN_STAR,
 
-	// One- or two-character tokens,
+	// One- or two-character tokens
 	TOKEN_BANG,
 	TOKEN_BANG_EQUAL,
 	TOKEN_EQUAL,
@@ -26,12 +26,12 @@ typedef enum
 	TOKEN_LESS,
 	TOKEN_LESS_EQUAL,
 
-	// Literals,
+	// Literals
 	TOKEN_IDENTIFIER,
 	TOKEN_STRING,
 	TOKEN_NUMBER,
 
-	// Keywords,
+	// Keywords
 	TOKEN_AND,
 	TOKEN_CLASS,
 	TOKEN_ELSE,
@@ -49,6 +49,7 @@ typedef enum
 	TOKEN_VAR,
 	TOKEN_WHILE,
 
+	// Special
 	TOKEN_ERROR,
 	TOKEN_EOF
 } TokenType;

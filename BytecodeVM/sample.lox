@@ -1,18 +1,4 @@
-class Doughnut
-{
-	Cook()
-	{
-		print "Fry until golden brown";
-	}
-}
-
-class BostonCream < Doughnut
-{
-	Cook()
-	{
-		super.Cook();
-		print "Pipe full of custard and coat with chocolate";
-	}
-}
-
-BostonCream().Cook();
+var abc = "abc";
+var def = "def";
+abc = abc + " and " + def;
+print abc;

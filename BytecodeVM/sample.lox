@@ -1,4 +1,7 @@
-var abc = "abc";
-var def = "def";
-abc = abc + " and " + def;
-print abc;
+fun a() { b(); }
+fun b() { c(); }
+fun c() {
+	c("too", "many");
+}
+
+a();

@@ -23,6 +23,14 @@ static void freeObject(Obj* obj)
 {
 	switch (obj->type)
 	{
+		case OBJ_FUNCTION:
+			{
+				ObjFunction* function = (ObjFunction*)obj;
+				freeChunk(&function->chunk);
+				FREE(ObjFunction, obj);
+				break;
+			}
+
 		case OBJ_STRING:
 			{
 				ObjString* string = (ObjString*)obj;

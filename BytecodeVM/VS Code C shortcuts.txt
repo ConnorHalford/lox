@@ -7,3 +7,6 @@ Terminal -> New Terminal
 
 ./bin/lox.exe
 - runs the built executable
+
+./bin/lox ../sample.lox
+- runs lox with the sample script file

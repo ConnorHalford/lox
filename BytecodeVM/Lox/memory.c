@@ -31,6 +31,10 @@ static void freeObject(Obj* obj)
 				break;
 			}
 
+		case OBJ_NATIVE:
+			FREE(ObjNative, obj);
+			break;
+
 		case OBJ_STRING:
 			{
 				ObjString* string = (ObjString*)obj;

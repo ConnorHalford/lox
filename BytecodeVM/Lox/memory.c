@@ -23,6 +23,14 @@ static void freeObject(Obj* obj)
 {
 	switch (obj->type)
 	{
+		case OBJ_CLOSURE:
+			{
+				ObjClosure* closure = (ObjClosure*)obj;
+				FREE_ARRAY(ObjUpvalue*, closure->upvalues, closure->upvalueCount);
+				FREE(ObjClosure, obj);
+				break;
+			}
+
 		case OBJ_FUNCTION:
 			{
 				ObjFunction* function = (ObjFunction*)obj;
@@ -42,6 +50,10 @@ static void freeObject(Obj* obj)
 				FREE(ObjString, obj);
 				break;
 			}
+
+		case OBJ_UPVALUE:
+			FREE(ObjUpvalue, obj);
+			break;
 	}
 }
 

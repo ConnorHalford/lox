@@ -16,7 +16,7 @@ typedef struct
 	Value* slots;
 } CallFrame;
 
-typedef struct
+typedef struct VM
 {
 	CallFrame frames[FRAMES_MAX];
 	int frameCount;
@@ -24,6 +24,7 @@ typedef struct
 	Value* stackTop;
 	Table globals;
 	Table strings;
+	ObjString* initString;
 	ObjUpvalue* openUpvalues;
 	size_t bytesAllocated;
 	size_t nextGC;

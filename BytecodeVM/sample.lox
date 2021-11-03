@@ -1,16 +1,25 @@
-class CoffeeMaker
+class A
 {
-	init(coffee)
+	method()
 	{
-		this.coffee = coffee;
-	}
-
-	brew()
-	{
-		print "Enjoy your cup of " + this.coffee;
-		this.coffee = nil;
+		print "A method";
 	}
 }
 
-var maker = CoffeeMaker("coffee and chicory");
-maker.brew();
+class B < A
+{
+	method()
+	{
+		print "B method";
+	}
+
+	test()
+	{
+		super.method();
+	}
+}
+
+class C < B
+{ }
+
+C().test();
